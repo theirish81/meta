@@ -74,24 +74,43 @@ paths:
               schema:
                 $ref: '#/components/schemas/recipe'
   "/recipes/{memory}/{recipeId}":
+    parameters:
+      - name: memory
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: recipeId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: updateRecipe
+      tags:
+        - recipes
+      x-echosec:
+        function: can_write
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/recipe_request'
+      responses:
+        200:
+          description: meta is updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/recipe'
     delete:
       operationId: deleteRecipe
       tags:
         - recipes
       x-echosec:
         function: can_write
-      parameters:
-        - name: memory
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: recipeId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+
       responses:
         204:
           description: meta is deleted
