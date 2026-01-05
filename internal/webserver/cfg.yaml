@@ -1,0 +1,9 @@
+package: webserver
+output: server.gen.go
+generate:
+  models: false
+  embedded-spec: true
+  echo-server: true
+additional-imports:
+  - package: github.com/theirish81/meta/internal/dto
+    alias: .

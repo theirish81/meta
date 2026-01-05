@@ -1,0 +1,282 @@
+openapi: 3.0.2
+info:
+  title: Meta OpenAPI
+  version: v1
+servers:
+  - url: /api/v1
+tags:
+  - name: recipes
+  - name: kb
+paths:
+  /recipes/_memories:
+    get:
+      operationId: listRecipesMemories
+      tags:
+        - recipes
+      x-echosec:
+        function: can_read
+      responses:
+        '200':
+          description: meta tags are returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/memories'
+  /recipes/{memory}:
+    parameters:
+      - name: memory
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: searchRecipes
+      tags:
+        - recipes
+      x-echosec:
+        function: can_read
+      parameters:
+        - name: tag
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: meta are returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/recipes'
+    post:
+      operationId: createRecipe
+      tags:
+        - recipes
+      x-echosec:
+        function: can_write
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/recipe_request'
+      responses:
+        201:
+          description: meta is created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/recipe'
+  "/recipes/{memory}/{recipeId}":
+    delete:
+      operationId: deleteRecipe
+      tags:
+        - recipes
+      x-echosec:
+        function: can_write
+      parameters:
+        - name: memory
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: recipeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: meta is deleted
+  "/kb/_memories":
+    get:
+      operationId: listKbMemories
+      tags:
+        - kb
+      x-echosec:
+        function: can_read
+      responses:
+        200:
+          description: memories are returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/memories'
+  "/kb/{memory}":
+    get:
+      operationId: searchKb
+      tags:
+        - kb
+      x-echosec:
+        function: can_read
+      parameters:
+        - name: memory
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tag
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: knowledge chunks are returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/knowledge_chunks'
+  "/kb/{memory}/documents":
+    get:
+      operationId: listDocuments
+      tags:
+        - kb
+      parameters:
+        - name: memory
+          in: path
+          required: true
+          schema:
+            type: string
+      x-echosec:
+        function: can_read
+      responses:
+        200:
+          description: documents are returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  "/kb/{memory}/documents/{document}":
+    parameters:
+      - name: memory
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: document
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: submitDocument
+      tags:
+        - kb
+      x-echosec:
+        function: can_write
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/document'
+      responses:
+        201:
+          description: knowledge is acquired
+    delete:
+      operationId: deleteDocument
+      tags:
+        - kb
+      x-echosec:
+        function: can_write
+      responses:
+        204:
+          description: knowledge is deleted
+
+        
+
+components:
+  schemas:
+    memory:
+      type: object
+      required:
+        - available_tags
+      properties:
+        available_tags:
+          type: array
+          items:
+            type: string
+    memories:
+      additionalProperties:
+        $ref: '#/components/schemas/memory'
+    recipe_request:
+      type: object
+      required:
+        - tags
+        - name
+        - description
+        - content
+      properties:
+        name:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        content:
+          type: string
+    recipe:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/recipe_request'
+        - required:
+            - id
+          properties:
+            id:
+              type: string
+              format: uuid
+    recipes:
+      type: array
+      items:
+        $ref: '#/components/schemas/recipe'
+    knowledge_chunk:
+      type: object
+      required:
+        - document
+        - tags
+        - chunk
+      properties:
+        document:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        chunk:
+          type: string
+    knowledge_chunks:
+      type: array
+      items:
+        $ref: '#/components/schemas/knowledge_chunk'
+    document:
+      type: object
+      required:
+        - tags
+        - content
+      properties:
+        tags:
+          type: array
+          items:
+            type: string
+        content:
+          type: string

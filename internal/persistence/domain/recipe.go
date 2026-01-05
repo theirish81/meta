@@ -1,0 +1,36 @@
+/*
+ * Copyright (C) 2026 Simone Pezzano
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package domain
+
+import (
+	"github.com/google/uuid"
+	"github.com/pgvector/pgvector-go"
+	"gorm.io/datatypes"
+)
+
+type Recipe struct {
+	ID          uuid.UUID                   `gorm:"primary_key;type:uuid;default:gen_random_uuid();<-:create"`
+	Name        string                      `gorm:"not null"`
+	Description string                      `gorm:"not null"`
+	Memory      string                      `gorm:"not null"`
+	Tags        datatypes.JSONSlice[string] `gorm:"not null"`
+	Content     string                      `gorm:"not null"`
+	IdentityID  string                      `gorm:"not null"`
+	Embedding   pgvector.Vector             `gorm:"type:vector(2560); not null"`
+	Distance    float64                     `gorm:"column:distance;<-:false;-:migration"`
+}
