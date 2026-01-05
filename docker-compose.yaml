@@ -1,0 +1,52 @@
+services:
+  meta:
+    image: ghcr.io/theirish81/meta:latest
+    container_name: meta
+    depends_on:
+      - postgres
+      - ollama
+    ports:
+      - 8080:8080
+    volumes:
+      - ./etc:/usr/local/meta/etc
+  postgres:
+    image: pgvector/pgvector:pg16-trixie
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=meta
+      - POSTGRES_PASSWORD=meta
+      - POSTGRES_DB=meta
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+      - ./pg_init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U meta" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - 11435:11434
+    volumes:
+      - ./data/ollama:/root/.ollama
+  ollama_init:
+    depends_on:
+      - ollama
+    image: curlimages/curl:latest
+    container_name: ollama_init
+    restart: no
+    command: |
+      /bin/sh -c '
+      echo "Waiting for ollama service to be ready..."
+      until curl -sS -X GET http://ollama:11434/api/tags; do
+        echo "Ollama not yet ready, waiting 5 seconds..."
+        sleep 5
+      done
+      curl -X POST http://ollama:11434/api/pull -d '\''{"model": "qwen3-embedding:4b"}'\''
+      echo "Model pull command sent."
+      '
