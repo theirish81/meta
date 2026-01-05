@@ -27,15 +27,15 @@ import (
 )
 
 func main() {
+	if len(os.Args) > 1 {
+		_ = cmd.RootCmd.Execute()
+		return
+	}
 	if err := config.Init(); err != nil {
 		panic(err)
 	}
 	if err := services.Init(); err != nil {
 		panic(err)
-	}
-	if len(os.Args) > 1 {
-		_ = cmd.RootCmd.Execute()
-		return
 	}
 	srv, err := webserver.NewServer()
 	if err != nil {
