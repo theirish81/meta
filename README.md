@@ -1,9 +1,9 @@
 # Meta (work in progress)
 
-Meta is a personal/internal Go application that extends the capabilities of Large Language Models (LLMs) by providing
-them with a "meta" layer of functionality. It includes a knowledge base for Retrieval-Augmented Generation (RAG), a
-recipe system for guiding LLMs on specific tasks, and a secure way to manage these resources through a REST API and a
-command-line interface (CLI).
+Meta is an application that extends the capabilities of Large Language Models (LLMs) by providing  them with a "meta"
+layer of functionality. It includes a knowledge base for Retrieval-Augmented Generation (RAG), a recipe system for
+guiding LLMs on specific tasks, and a secure way to manage these resources through a REST API and a command-line
+interface (CLI).
 
 This application is not intended for enterprise use. It does not contain a user management system. The only barrier
 between users is a long-lasting JWT token that should be considered an API key.
