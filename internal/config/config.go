@@ -18,6 +18,9 @@
 package config
 
 import (
+	"errors"
+	"io/fs"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 )
@@ -42,7 +45,10 @@ func Init() error {
 	viper.SetDefault("OLLAMA_BASE_URL", "")
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
-		return err
+		var configFileNotFoundError *fs.PathError
+		if !errors.As(err, &configFileNotFoundError) {
+			return err
+		}
 	}
 	if err := viper.Unmarshal(&Instance); err != nil {
 		return err
