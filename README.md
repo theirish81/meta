@@ -28,12 +28,13 @@ between users is a long-lasting JWT token that should be considered an API key.
 
 ### Setup
 
-1.  **Generate JWT keys:**
+**Generate RSA keys for JWT:**
 
-    ```bash
-    openssl genpkey -algorithm RSA -out etc/keys/private.pem -pkeyopt rsa_keygen_bits:4096
-    openssl rsa -pubout -in etc/keys/private.pem -out etc/keys/public.pem
-    ```
+**IMPORTANT:** this repository contains a **test keypair. DO NOT USE FOR PRODUCTION!**
+```bash
+openssl genpkey -algorithm RSA -out etc/keys/private.pem -pkeyopt rsa_keygen_bits:4096
+openssl rsa -pubout -in etc/keys/private.pem -out etc/keys/public.pem
+```
 
 
 ### Running the Application
@@ -110,7 +111,7 @@ supersede the values in the `.env` file.
 * `META_DISTANCE_THRESHOLD`: the vector distance beyond which a meta record is considered irrelevant
 * `OLLAMA_BASE_URL`: the base URL of the Ollama service
 * `EMBEDDING_MODEL`: the name of the text vectorization model to use. The model should produce vectors of exactly 2560
-  domensions (I recommend `qwen3-embedding:4b`)
+  dimensions (I recommend `qwen3-embedding:4b`)
 
 ## License
 
