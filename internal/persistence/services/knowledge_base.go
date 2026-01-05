@@ -77,6 +77,11 @@ func (s *KnowledgeBaseService) Search(ctx context.Context, ownerID string, memor
 
 func (s *KnowledgeBaseService) RecordDocument(ctx context.Context, ownerID string, memory string, document string,
 	tags []string, content string) error {
+	// We want to make sure that the document is not already present. Re-uploading a document with the same name will
+	// be considered an update of the chunks.
+	if err := s.DeleteDocument(ctx, ownerID, memory, document); err != nil {
+		return err
+	}
 	var splitter textsplitter.TextSplitter
 	if filepath.Ext(document) == ".md" {
 		splitter = textsplitter.NewMarkdownTextSplitter(
