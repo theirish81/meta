@@ -127,3 +127,20 @@ func (s *RecipeService) Tags(ctx context.Context, ownerID string, memory string)
 	}
 	return res.Slice(), nil
 }
+
+func (s *RecipeService) Show(ctx context.Context, ownerID string, memory string, recipeID uuid.UUID) (domain.Recipe, error) {
+	query := &domain.Recipe{ID: recipeID, IdentityID: ownerID, Memory: memory}
+	res := domain.Recipe{}
+	err := s.conn.WithContext(ctx).Model(query).Where(query).First(&res, "id = ?", recipeID).Error
+	return res, err
+}
+
+func (s *RecipeService) Update(ctx context.Context, ownerID string, memory string, recipeID uuid.UUID,
+	recipe domain.Recipe) (domain.Recipe, error) {
+	query := &domain.Recipe{ID: recipeID, IdentityID: ownerID, Memory: memory}
+	err := s.conn.WithContext(ctx).Model(query).Where(query).Updates(&recipe).Error
+	if err != nil {
+		return recipe, err
+	}
+	return s.Show(ctx, ownerID, memory, recipeID)
+}

@@ -11,6 +11,7 @@ paths:
   /recipes/_memories:
     get:
       operationId: listRecipesMemories
+      description: lists all the recipes memory slots, and their available tags
       tags:
         - recipes
       x-echosec:
@@ -31,6 +32,7 @@ paths:
           type: string
     get:
       operationId: searchRecipes
+      description: searches recipes in a memory slot
       tags:
         - recipes
       x-echosec:
@@ -57,6 +59,7 @@ paths:
                 $ref: '#/components/schemas/recipes'
     post:
       operationId: createRecipe
+      description: creates a new recipe in a memory slot
       tags:
         - recipes
       x-echosec:
@@ -74,30 +77,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/recipe'
   "/recipes/{memory}/{recipeId}":
-    delete:
-      operationId: deleteRecipe
+    parameters:
+      - name: memory
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: recipeId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: updateRecipe
+      description: updates a specific recipe
       tags:
         - recipes
       x-echosec:
         function: can_write
-      parameters:
-        - name: memory
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: recipeId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/recipe_request'
+      responses:
+        200:
+          description: meta is updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/recipe'
+    delete:
+      operationId: deleteRecipe
+      description: deletes a specific recipe
+      tags:
+        - recipes
+      x-echosec:
+        function: can_write
       responses:
         204:
           description: meta is deleted
   "/kb/_memories":
     get:
       operationId: listKbMemories
+      description: lists all the knowledge base memory slots, and their available tags
       tags:
         - kb
       x-echosec:
@@ -112,6 +136,7 @@ paths:
   "/kb/{memory}":
     get:
       operationId: searchKb
+      description: searches knowledge chunks in a memory slot
       tags:
         - kb
       x-echosec:
@@ -146,6 +171,7 @@ paths:
   "/kb/{memory}/documents":
     get:
       operationId: listDocuments
+      description: lists all the documents in a memory slot
       tags:
         - kb
       parameters:
@@ -179,6 +205,7 @@ paths:
           type: string
     post:
       operationId: submitDocument
+      description: submits a new document to a memory slot
       tags:
         - kb
       x-echosec:
@@ -189,10 +216,11 @@ paths:
             schema:
               $ref: '#/components/schemas/document'
       responses:
-        201:
+        200:
           description: knowledge is acquired
     delete:
       operationId: deleteDocument
+      description: deletes all the knowledge chunks identified by a specific file name
       tags:
         - kb
       x-echosec:
@@ -200,8 +228,6 @@ paths:
       responses:
         204:
           description: knowledge is deleted
-
-        
 
 components:
   schemas:

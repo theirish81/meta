@@ -54,14 +54,25 @@ func (s Server) CreateRecipe(ctx echo.Context, memory string) error {
 	return edjson.JSON[dto.Recipe](ctx, http.StatusCreated, meta, err)
 }
 
-func (s Server) DeleteRecipe(ctx echo.Context, memory string, metaId openapi_types.UUID) error {
+func (s Server) DeleteRecipe(ctx echo.Context, memory string, recipeID openapi_types.UUID) error {
 	identity := MustGetUser(ctx)
 	if !identity.CanWrite() {
 		return echo.NewHTTPError(http.StatusForbidden)
 	}
-	err := s.Services.RecipeService.Delete(ctx.Request().Context(), identity.Subject, memory, metaId)
+	err := s.Services.RecipeService.Delete(ctx.Request().Context(), identity.Subject, memory, recipeID)
 	if err != nil {
 		return err
 	}
 	return ctx.NoContent(http.StatusNoContent)
+}
+
+func (s Server) UpdateRecipe(ctx echo.Context, memory string, recipeId openapi_types.UUID) error {
+	body := dto.RecipeRequest{}
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	recipe := edjson.MustCopy[domain.Recipe](body)
+	recipe, err := s.Services.RecipeService.Update(ctx.Request().Context(), MustGetUser(ctx).Subject, memory, recipeId, recipe)
+	return edjson.JSON[dto.Recipe](ctx, http.StatusOK, recipe, err)
+
 }

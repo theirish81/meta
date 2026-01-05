@@ -41,7 +41,7 @@ func (s Server) SubmitDocument(ctx echo.Context, memory string, document string)
 	if err != nil {
 		return err
 	}
-	return ctx.NoContent(http.StatusCreated)
+	return ctx.NoContent(http.StatusOK)
 }
 
 func (s Server) DeleteDocument(ctx echo.Context, memory string, document string) error {
