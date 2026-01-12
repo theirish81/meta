@@ -18,7 +18,17 @@
 
 
 <script lang="ts">
-    import {Label, Select, MultiSelect, Input, Textarea, Button, Modal, type SelectOptionType} from "flowbite-svelte";
+    import {
+        Label,
+        Select,
+        MultiSelect,
+        Input,
+        Textarea,
+        Button,
+        Modal,
+        type SelectOptionType,
+        Alert
+    } from "flowbite-svelte";
     import {Card, Badge, Tags} from 'flowbite-svelte';
     import { TrashBinSolid } from "flowbite-svelte-icons";
 
@@ -35,7 +45,7 @@
     let tagsSelected = $state([])
     let query = $state('')
     let items: Recipe[] = $state([])
-
+    let error = ""
     let formOpen = $state(false)
     let formMemory = $state('')
     let selectedItem: Recipe = $state(<Recipe>{})
@@ -51,16 +61,24 @@
     }
 
     async function listMemories(){
-        memories = await client.listRecipesMemories()
+        try {
+            memories = await client.listRecipesMemories()
+        }catch(e) {
+            error = "could not list memories"
+        }
     }
     async function searchRecipes(){
         const tags = tagsSelected.length > 0 ? tagsSelected : undefined
         const q = query.length > 0 ? query : undefined
-        items = await client.searchRecipes({
-            memory: selectedMemory,
-            tag: tags,
-            q: q
-        })
+        try {
+            items = await client.searchRecipes({
+                memory: selectedMemory,
+                tag: tags,
+                q: q
+            })
+        }catch(e) {
+            error = "could not search recipes"
+        }
     }
 
     function isSearchSubmitDisabled(): boolean {
@@ -80,17 +98,21 @@
     }
 
     async function save() {
-        if (selectedItem.id) {
-            await getRecipesClient().updateRecipe({
-                recipeId: selectedItem.id,
-                memory: formMemory,
-                recipeRequest: selectedItem
-            })
-        } else {
-            await getRecipesClient().createRecipe({
-                memory: formMemory,
-                recipeRequest: selectedItem
-            })
+        try {
+            if (selectedItem.id) {
+                await getRecipesClient().updateRecipe({
+                    recipeId: selectedItem.id,
+                    memory: formMemory,
+                    recipeRequest: selectedItem
+                })
+            } else {
+                await getRecipesClient().createRecipe({
+                    memory: formMemory,
+                    recipeRequest: selectedItem
+                })
+            }
+        }catch(e) {
+            error = "could not save recipe"
         }
         formOpen = false
         await listMemories()
@@ -99,10 +121,15 @@
     }
 
     async function deleteRecipe() {
-        await getRecipesClient().deleteRecipe({
-            recipeId: selectedItem.id,
-            memory: formMemory,
-        })
+        try {
+
+            await getRecipesClient().deleteRecipe({
+                recipeId: selectedItem.id,
+                memory: formMemory,
+            })
+        }catch(e) {
+            error = "could not delete recipe"
+        }
         formOpen = false
         await listMemories()
         if (Object.keys(memories).includes(formMemory)) {
@@ -158,6 +185,7 @@
 </Modal>
 
 <div class="flex flex-wrap gap-4 items-end">
+    <Alert color="red" alertStatus={error.length > 0}>{error}</Alert>
     <div class="flex-1">
         <Label for="memory">Memories</Label>
         <Select name="memory" class="mt-2" items={memoriesList} bind:value={selectedMemory} onchange={() => tagsSelected = []}/>

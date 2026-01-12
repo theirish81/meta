@@ -27,7 +27,7 @@
         Modal,
         type SelectOptionType,
         Textarea,
-        Tags
+        Tags, Alert
     } from "flowbite-svelte";
     import { Badge, Table, TableHead, TableHeadCell, TableBody, TableBodyRow, TableBodyCell} from 'flowbite-svelte';
 
@@ -38,6 +38,7 @@
     import {TrashBinSolid} from "flowbite-svelte-icons";
 
     const client = getKnowledgeClient()
+    let error = $state('')
     let selectedMemory = $state('')
     let memories: {[key: string]: Memory} = $state({})
     let memoriesList = $derived.by(() => {
@@ -68,22 +69,34 @@
     }
 
     async function listMemories(){
-        memories = await client.listKbMemories()
+        try {
+            memories = await client.listKbMemories()
+        }catch(e) {
+            error = "could not list memories"
+        }
     }
 
     async function searchItems(){
         const tags = tagsSelected.length > 0 ? tagsSelected : undefined
-        items = await client.searchKb({
-            memory: selectedMemory,
-            tag: tags,
-            q: query
-        })
+        try {
+            items = await client.searchKb({
+                memory: selectedMemory,
+                tag: tags,
+                q: query
+            })
+        }catch(e) {
+            error = "could not search items"
+        }
     }
 
     async function listDocuments() {
-        panelDocuments = await client.listDocuments({
-            memory: selectedMemory,
-        })
+        try {
+            panelDocuments = await client.listDocuments({
+                memory: selectedMemory,
+            })
+        }catch(e) {
+            error = "could not list documents"
+        }
     }
 
     function isSearchSubmitDisabled(): boolean {
@@ -95,10 +108,14 @@
         panelDocumentsOpen = true
     }
     async function deleteDocument(document: string) {
-        await client.deleteDocument({
-            memory: selectedMemory,
-            document: document
-        })
+        try {
+            await client.deleteDocument({
+                memory: selectedMemory,
+                document: document
+            })
+        }catch(e) {
+            error = "could not delete document"
+        }
         await listMemories()
         selectedMemory = ""
         items = []
@@ -106,11 +123,15 @@
     }
 
     async function save() {
-        await client.submitDocument({
-            memory: formMemory,
-            document: formDocumentName,
-            document2: formDocumentData
-        })
+        try {
+            await client.submitDocument({
+                memory: formMemory,
+                document: formDocumentName,
+                document2: formDocumentData
+            })
+        }catch(e) {
+            error = "could not save document"
+        }
         await listMemories()
         formOpen = false
     }
@@ -170,6 +191,7 @@
     </div>
 </Modal>
 <div class="flex flex-wrap gap-4 items-end">
+    <Alert color="red" alertStatus={error.length > 0}>{error}</Alert>
     <div class="flex-1">
         <Label for="memory">Memories</Label>
         <Select name="memory" class="mt-2" items={memoriesList} bind:value={selectedMemory} onchange={() => tagsSelected = []}/>
