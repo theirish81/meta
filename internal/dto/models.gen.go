@@ -7,6 +7,10 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+const (
+	BearerAuthScopes = "bearerAuth.Scopes"
+)
+
 // Document defines model for document.
 type Document struct {
 	Content string   `json:"content"`
