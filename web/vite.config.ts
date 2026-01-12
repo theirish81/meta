@@ -5,6 +5,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [tailwindcss(), svelte()],
+    base: "/web",
     server: {
         fs: {
             strict: false
