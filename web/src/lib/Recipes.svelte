@@ -45,7 +45,7 @@
     let tagsSelected = $state([])
     let query = $state('')
     let items: Recipe[] = $state([])
-    let error = ""
+    let error = $state('')
     let formOpen = $state(false)
     let formMemory = $state('')
     let selectedItem: Recipe = $state(<Recipe>{})
@@ -63,8 +63,8 @@
     async function listMemories(){
         try {
             memories = await client.listRecipesMemories()
-        }catch(e) {
-            error = "could not list memories"
+        }catch(e: any) {
+            error = "could not list memories: "+e.message
         }
     }
     async function searchRecipes(){
@@ -76,8 +76,8 @@
                 tag: tags,
                 q: q
             })
-        }catch(e) {
-            error = "could not search recipes"
+        }catch(e: any) {
+            error = "could not search recipes: "+e.message
         }
     }
 
@@ -111,8 +111,8 @@
                     recipeRequest: selectedItem
                 })
             }
-        }catch(e) {
-            error = "could not save recipe"
+        }catch(e: any) {
+            error = "could not save recipe: "+e.message
         }
         formOpen = false
         await listMemories()
@@ -127,8 +127,8 @@
                 recipeId: selectedItem.id,
                 memory: formMemory,
             })
-        }catch(e) {
-            error = "could not delete recipe"
+        }catch(e: any) {
+            error = "could not delete recipe: "+e.message
         }
         formOpen = false
         await listMemories()
@@ -184,8 +184,11 @@
 
 </Modal>
 
-<div class="flex flex-wrap gap-4 items-end">
+<div>
     <Alert color="red" alertStatus={error.length > 0}>{error}</Alert>
+</div>
+<div class="flex flex-wrap gap-4 items-end">
+
     <div class="flex-1">
         <Label for="memory">Memories</Label>
         <Select name="memory" class="mt-2" items={memoriesList} bind:value={selectedMemory} onchange={() => tagsSelected = []}/>

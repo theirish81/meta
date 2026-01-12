@@ -71,8 +71,8 @@
     async function listMemories(){
         try {
             memories = await client.listKbMemories()
-        }catch(e) {
-            error = "could not list memories"
+        }catch(e: any) {
+            error = "could not list memories: "+e.message
         }
     }
 
@@ -84,8 +84,8 @@
                 tag: tags,
                 q: query
             })
-        }catch(e) {
-            error = "could not search items"
+        }catch(e: any) {
+            error = "could not search items: "+e.message
         }
     }
 
@@ -94,8 +94,8 @@
             panelDocuments = await client.listDocuments({
                 memory: selectedMemory,
             })
-        }catch(e) {
-            error = "could not list documents"
+        }catch(e: any) {
+            error = "could not list documents: "+e.message
         }
     }
 
@@ -113,8 +113,8 @@
                 memory: selectedMemory,
                 document: document
             })
-        }catch(e) {
-            error = "could not delete document"
+        }catch(e: any) {
+            error = "could not delete document: "+e.message
         }
         await listMemories()
         selectedMemory = ""
@@ -129,8 +129,8 @@
                 document: formDocumentName,
                 document2: formDocumentData
             })
-        }catch(e) {
-            error = "could not save document"
+        }catch(e: any) {
+            error = "could not save document: "+e.message
         }
         await listMemories()
         formOpen = false
@@ -190,8 +190,11 @@
         <Button class="mt-4" onclick={() => save()} disabled={isFormSaveDisabled()}>Save</Button>
     </div>
 </Modal>
-<div class="flex flex-wrap gap-4 items-end">
+
+<div>
     <Alert color="red" alertStatus={error.length > 0}>{error}</Alert>
+</div>
+<div class="flex flex-wrap gap-4 items-end">
     <div class="flex-1">
         <Label for="memory">Memories</Label>
         <Select name="memory" class="mt-2" items={memoriesList} bind:value={selectedMemory} onchange={() => tagsSelected = []}/>
