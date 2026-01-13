@@ -47,6 +47,7 @@ func NewServer() (*Server, error) {
 	if err != nil {
 		return &server, err
 	}
+	server.E.Static("/web", "./web")
 	grp := server.E.Group("/api/v1")
 	grp.Use(echojwt.WithConfig(echojwt.Config{
 		SigningKey:    publicKey,

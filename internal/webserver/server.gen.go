@@ -63,6 +63,8 @@ type ServerInterfaceWrapper struct {
 func (w *ServerInterfaceWrapper) ListKbMemories(ctx echo.Context) error {
 	var err error
 
+	ctx.Set(BearerAuthScopes, []string{})
+
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.ListKbMemories(ctx)
 	return err
@@ -78,6 +80,8 @@ func (w *ServerInterfaceWrapper) SearchKb(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter memory: %s", err))
 	}
+
+	ctx.Set(BearerAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params SearchKbParams
@@ -111,6 +115,8 @@ func (w *ServerInterfaceWrapper) ListDocuments(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter memory: %s", err))
 	}
 
+	ctx.Set(BearerAuthScopes, []string{})
+
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.ListDocuments(ctx, memory)
 	return err
@@ -134,6 +140,8 @@ func (w *ServerInterfaceWrapper) DeleteDocument(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter document: %s", err))
 	}
+
+	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.DeleteDocument(ctx, memory, document)
@@ -159,6 +167,8 @@ func (w *ServerInterfaceWrapper) SubmitDocument(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter document: %s", err))
 	}
 
+	ctx.Set(BearerAuthScopes, []string{})
+
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.SubmitDocument(ctx, memory, document)
 	return err
@@ -167,6 +177,8 @@ func (w *ServerInterfaceWrapper) SubmitDocument(ctx echo.Context) error {
 // ListRecipesMemories converts echo context to params.
 func (w *ServerInterfaceWrapper) ListRecipesMemories(ctx echo.Context) error {
 	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.ListRecipesMemories(ctx)
@@ -183,6 +195,8 @@ func (w *ServerInterfaceWrapper) SearchRecipes(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter memory: %s", err))
 	}
+
+	ctx.Set(BearerAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params SearchRecipesParams
@@ -216,6 +230,8 @@ func (w *ServerInterfaceWrapper) CreateRecipe(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter memory: %s", err))
 	}
 
+	ctx.Set(BearerAuthScopes, []string{})
+
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.CreateRecipe(ctx, memory)
 	return err
@@ -240,6 +256,8 @@ func (w *ServerInterfaceWrapper) DeleteRecipe(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter recipeId: %s", err))
 	}
 
+	ctx.Set(BearerAuthScopes, []string{})
+
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.DeleteRecipe(ctx, memory, recipeId)
 	return err
@@ -263,6 +281,8 @@ func (w *ServerInterfaceWrapper) UpdateRecipe(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter recipeId: %s", err))
 	}
+
+	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.UpdateRecipe(ctx, memory, recipeId)
@@ -313,23 +333,23 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/8RYTW/jNhD9K8S0R3WVbHvSrW0uwXaxixY9BYFBkWOba4lUSMppYOi/FyQlWV+25cRO",
-	"LoFAcoYz772ZYbwDpvJCSZTWQLIDw9aYU//JFStzlNZ9F1oVqK1Av8OUtPWGfSkQEjBWC7mCKgJLV/6M",
-	"sJib6RNhgWpNX6CqItD4VAqNHJKHYB61Nzy2x1X6A5l19hupnjPkK1ywdSk3E+E1y6OruyldOvLWd9Qm",
-	"4eOYkUL/2p81LiGBn+I9M3FNSzzMfRRUBDnmStdIUM6FFUrS7HsPoWNXePuQXv05AphuqchomuHijZgN",
-	"HE1BpZEJt7QDmmXflpA8HA8/nF+4W9A4D8PgBXd/l0rn1EICZSk4RMO4B3EKDo/V4eja286qFI6GaVE4",
-	"fib3Jc3xiiXm3fejOF53Idf5Wq2ZG4dTRSDkUvnIhc3c1le0lHwrUP7+/R4i2KI2HhbY3joHqkBJCwEJ",
-	"/Prp5tNniKCgdu0jiDdpvOhqfoUe7h66kAljDaFZRuwaSVtFJKUGSZA5MZmyJiJUcndIaNKqk9SQOWap",
-	"83jPIYG/hLFf0q/N1Q4gUyhpQhifb24GAqBFkQnm7eMfJpAesJpVku4Oj10/s2aPUI1Eoy21RO45DzJ5",
-	"gE3q6PzvF2RrZZB59ZeS1faMyoVGyoNvh+Yu4FEdBNMg1WyNpoNjaGNESEK7cI4w+8ebfkk9g5rmaFEb",
-	"X9PCeXasNtJMmvbTVa/VJUYd1EZlWzt6KtFb1p4sXUHXbH7lTPt7OiuoxzdK4zWTwUzXXZ/IEX8X11Dc",
-	"TMW5pdmeP60lV393rfsrCepi3J1S2oicPRJXZCXeNZ9VYCZDi2OOwvpUA20Kn6O0YimQk/SFUGIKZGIp",
-	"GFmKDEk9avr03Xmfd/tX0wDn38Zh7K8VhoSYzgXkWQuL3uaq/afviHeTPEN5hTJT7bdMc+FkQSQ+twVD",
-	"rDrVe73dXT8WNPYPxV8uNqraVKsqvDvGtXOEU8pqdF5HqpN5/Uo5+01Q273lMfB3cPHxLwJLfZCHG0fz",
-	"lJvfPRpY5z8OGkBnvglq8A708XeY59ebAacfyYd5vBCF15uO0z2KaaR+YPgeFWI9rYQ/vVVQwpX60/Df",
-	"w6kudXvh2w6SKwwJQL2K2qmu1074XVi55/Pm+n5g6wb9qWndoebUrG4SnBrTZyb4rrO6we2oq1O/Hhys",
-	"i7LgdB7g//qTH14LN+9YCwGct9VCFYFBvW2UUuoMEohpIeLtLfifcILjXZ9v438oqpc2KVSP1f8BAAD/",
-	"/zS3tQUaFQAA",
+	"H4sIAAAAAAAC/8RYUW/bNhD+K8Rtj1qVdHvSW7dgQNYVLdYNewgCgyLPNmuJVEjKmWHovw8kJVmyZFtu",
+	"7OQlUETe8e77vruTuQWm8kJJlNZAsgXDlphT/8gVK3OU1j0XWhWorUC/wpS09YLdFAgJGKuFXEAVgaUL",
+	"v0dYzM34jvCCak03UFURaHwqhUYOyUMwj9oTHtvtKv2GzDr7lVTPGfIFztiylKuR8JrXg6O7KV068tZ3",
+	"1Cbh45iQQv/YHzXOIYEf4h0zcU1LvJ/7IKgIcsyVrpGgnAsrlKTZlx5Cx47w9iG9+nEAMF1TkdE0w9kL",
+	"MdtzNAaVRibcqy3QLPs8h+ThePhh/8ydgsZ52A9ecPd3rnROLSRQloJDtB/3XpyCw2N1OLr2tLMqhaNh",
+	"WhSOn9F1SXO8Yol59/0ojtddyHW6VmvmxsIxyEot7Oar2xpcpkg16g+lXe7++70h6Y9//4Yo9CbnKKzu",
+	"WFtaW0DlHAs5Vx4RYTO38gktJZ8LlB++3EMEa9TGww3rWxeYKlDSQkACP7+7efceIiioXfp44lUaz7q1",
+	"tEBPY481yISxhtAsI3aJpK1OklKDJJQPMZmyJiJUcrdJaNKqntRUOMVQ5/GeQwJ/CmM/pp+aox3wplDS",
+	"hDDe39zsCYsWRSaYt4+/mSCmwMGkUndneOz6mTVrhGokGm2pJXJPXpDfA6xSJ5P/fkK2VAaZr6pSstqe",
+	"UTnTSHnw7dDcBjyqg2AapJot0XRwDO2RCEloF84BZl+96cfUM6hpjha18b1COM+O1UbySdPWulVhdYlR",
+	"B7VBO6gdPZXoLWtPli6gaza9Isf9PZ0V1OMVpTGYUCMSGdB0canEzVCdWoHt/tOScWV217q/km5eStFk",
+	"QQ3I2SFxRVbibfNYBWYytDjkKLwf65NNfXOUVswFcpJuCCWmQCbmgpG5yJDUk6pP3533ebf76NrD+Zdh",
+	"GLtjhSEhpnMBedbCore5apvpO+LdJM9QXqHMWJct01w4WRCJz23BEKtOtVhvd9ePBY39VfHNxdpOm2pV",
+	"hc+WYe0c4ZSyGp3vI9XJvP7IOXv013Yvmfl/BRdvP/gt9UEebhzNl+D07tHAOv0boAF04uivwTvQx19h",
+	"bL/NmG6YOMTjhSi83nQc71FMI/UDw/eoEOtpJfzmrYISrtSf9n9djnWp2wufdpBcYUgA6ruoHet67YTf",
+	"hjf3fNpc3w1s3aA/Nq071Jya1U2CY2P6zARfdVY3uB11dery4WBdlAWn0wD/x+9881q4ecVaCOC8rBY6",
+	"dxNeKt1biQd/BWRQrxshlTqDBGJaiHh9C/6CKJy77cvB+Guo+tUqheqx+j8AAP//uoFUq3gVAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

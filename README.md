@@ -2,7 +2,8 @@
 
 Meta is an application that extends the capabilities of Large Language Models (LLMs) by providing  them with a "meta"
 layer of functionality. It includes a knowledge base for Retrieval-Augmented Generation (RAG), a recipe system for
-guiding LLMs on specific tasks, and a secure way to manage these resources through a REST API and a command-line
+guiding LLMs on specific tasks, and a secure way to manage these resources through a REST API, a minimal web interface
+and a command-line
 interface (CLI).
 
 This application is not intended for enterprise use. It does not contain a user management system. The only barrier
@@ -17,6 +18,7 @@ between users is a long-lasting JWT token that should be considered an API key.
 *   **REST API:** A comprehensive REST API for managing the knowledge base and recipes.
 *   **Model Context Protocol (MCP):** A protocol that allows LLMs to access the knowledge base and recipes.
 *   **Multi-tenancy:** User and tenant isolation is enforced through JWT-based authentication.
+*   **Web Interface:** A minimal web interface for managing the knowledge base and recipes.
 *   **Command-Line Interface (CLI):** A CLI for the sole purpose of generating JWT tokens (API keys).
 
 ## Getting Started
@@ -100,6 +102,9 @@ key.
 ```
 Authorization: Bearer <your_jwt_token>
 ```
+
+## Web Interface
+You can access it at http://localhost:8080/web . It will require the same token mentioned above.
 
 ## Configuration
 
