@@ -118,15 +118,15 @@ var toolKnowledgeSearch = &mcp.Tool{
 	Description: "searches  knowledge. Knowledge records contain knowledge that is useful as-is to the user. Call this for most topics",
 	InputSchema: &jsonschema.Schema{
 		Type:     "object",
-		Required: []string{"memory", "q"},
+		Required: []string{"memory", "tag", "q"},
 		Properties: map[string]*jsonschema.Schema{
 			"memory": {
 				Type:        "string",
-				Description: "the memory slot to use. This is mandatory. The memories can be retrieved via the meta_list_knowledge_memories tool",
+				Description: "the memory slot to use. This is mandatory. Use only memories that have either been provided by the user themselves, or returned by the meta_list_knowledge_memories call",
 			},
 			"tag": {
 				Type:        "array",
-				Description: "tags to identify the topic to be searched. Do not include tags that are not obviously related to the topic.",
+				Description: "tags to identify the topic to be searched. Use only tags that have either been provided by the user themselves, or returned by the meta_list_knowledge_memories call",
 				Items: &jsonschema.Schema{
 					Type: "string",
 				},
@@ -140,7 +140,7 @@ var toolKnowledgeSearch = &mcp.Tool{
 }
 var toolKnowledgeMemories = &mcp.Tool{
 	Name:        "meta_list_knowledge_memories",
-	Description: "lists all memory slots and their tags. Call this first to get the list of memories  and tags to use in the meta_search_knowledge tool.",
+	Description: "lists all memory slots and their tags. Call this first to get the list of memories and tags to use in the meta_search_knowledge tool.",
 	InputSchema: &jsonschema.Schema{
 		Type:       "object",
 		Properties: map[string]*jsonschema.Schema{},
@@ -152,15 +152,15 @@ var toolRecipeSearch = &mcp.Tool{
 	Description: "searches for recipes. Each recipe contains a manual to help the assistant perform complex tasks",
 	InputSchema: &jsonschema.Schema{
 		Type:     "object",
-		Required: []string{"tag", "q"},
+		Required: []string{"memory", "tag", "q"},
 		Properties: map[string]*jsonschema.Schema{
 			"memory": {
 				Type:        "string",
-				Description: "the memory slot to use. The list of memories can be retrieved via the meta_list_recipes_memories tool",
+				Description: "the memory slot to use. Use only memories that have either been provided by the user themselves, or returned by the meta_list_recipes_memories call",
 			},
 			"tag": {
 				Type:        "array",
-				Description: "tags to identify the task to be accomplished. Do not include tags that are not obviously related to the topic.",
+				Description: "tags to identify the task to be accomplished. Use only tags that have either been provided by the user themselves, or returned by the meta_list_recipes_memories call",
 				Items: &jsonschema.Schema{
 					Type: "string",
 				},
