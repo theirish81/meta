@@ -19,6 +19,7 @@ package webserver
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -94,7 +95,13 @@ func (s Server) initMCP() {
 }
 
 func toCallResult(data any) *mcp.CallToolResult {
-	return &mcp.CallToolResult{StructuredContent: map[string]any{"result": data}}
+	output := map[string]any{"result": data}
+	content, _ := json.Marshal(output)
+	return &mcp.CallToolResult{StructuredContent: output, Content: []mcp.Content{
+		&mcp.TextContent{
+			Text: string(content),
+		},
+	}}
 }
 
 func getMetaClaims(m map[string]any) *auth2.MetaClaims {
