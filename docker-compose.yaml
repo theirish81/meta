@@ -3,8 +3,10 @@ services:
     image: ghcr.io/theirish81/meta:latest
     container_name: meta
     depends_on:
-      - postgres
-      - ollama
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
     ports:
       - 8080:8080
     volumes:
