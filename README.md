@@ -57,6 +57,10 @@ docker-compose up -d
 
 This will start all the services in detached mode. The main application will be available at http://localhost:8080.
 
+**IMPORTANT!:** before the system can fully work, Ollama needs to download the embedding model. This will happen the
+first time you start the application and it **will take a few minutes**. You can check the progress in the container
+logs.
+
 To stop the application, use the following command:
 ```bash
 docker-compose down
@@ -105,6 +109,25 @@ Authorization: Bearer <your_jwt_token>
 
 ## Web Interface
 You can access it at http://localhost:8080/web . It will require the same token mentioned above.
+
+
+## MCP
+It is, after all, the reason why we're doing all this! Point your LLM agent/client configuration to the Meta MCP
+endpoint: `http://<meta_host>:8080/mcp` making sure you're passing the JWT token in the `Authorization` header.
+Example:
+```json
+{
+  "mcpServers": {
+    "meta": {
+      "url": "http://<meta_host>:8080/mcp",
+      "headers": {
+        "Authorization": "Bearer <token>"
+      },
+      "disabled": false
+    }
+  }
+}
+```
 
 ## Configuration
 
