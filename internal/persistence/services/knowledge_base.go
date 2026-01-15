@@ -56,7 +56,7 @@ func (s *KnowledgeBaseService) Search(ctx context.Context, ownerID string, memor
 	}
 	tx := s.conn.WithContext(ctx).Model(query).Where(query)
 	if tags != nil {
-		tx = tx.Where("jsonb_exists_any(tags, ?)", pq.Array(*tags))
+		tx = tx.Where("jsonb_exists_any(tags, ?) OR document ILIKE ANY (?)", pq.Array(*tags), pq.Array(*tags))
 	}
 	embedding, err := Services.EmbeddingService.ExtractEmbedding(q)
 	if err != nil {
