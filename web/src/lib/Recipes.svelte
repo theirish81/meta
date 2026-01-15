@@ -152,7 +152,8 @@
 </script>
 
 
-<Modal open={formOpen} onclose={onModalClose} class="w-full max-w-5xl">
+<Modal open={formOpen} onclose={onModalClose} class="w-full max-w-5xl" permanent>
+
     <div class="mb-6">
         <Label for="name" class="mb-2 block">Memory</Label>
         <Input id="name" size="lg" disabled={selectedItem.id != null } bind:value={formMemory} />
@@ -163,7 +164,7 @@
     </div>
     <div class="mb-6">
         <Label for="tags" class="mb-2 block">Tags</Label>
-        <Tags bind:value={selectedItem.tags}></Tags>
+        <Tags bind:value={selectedItem.tags} unique={true} />
     </div>
     <div class="mb-6">
         <Label for="description" class="mb-2 block">Description</Label>
@@ -174,12 +175,16 @@
         <Textarea id="content" class="w-full h-80" bind:value={selectedItem.content} />
     </div>
     <div class="flex justify-between">
-        <Button class="mt-4" onclick={() => save()} disabled={isFormSaveDisabled()}>Save</Button>
+        <div>
+            <Button class="mt-4" onclick={() => save()} disabled={isFormSaveDisabled()}>Save</Button>
+            <Button class="mt-4" onclick={onModalClose}>Cancel</Button>
+        </div>
         {#if selectedItem.id}
             <Button class="mt-4" onclick={deleteRecipe}>
                 <TrashBinSolid />
             </Button>
         {/if}
+
     </div>
 
 </Modal>
@@ -190,7 +195,7 @@
 <div class="flex flex-wrap gap-4 items-end">
 
     <div class="flex-1">
-        <Label for="memory">Memories</Label>
+        <Label for="memory">Memory *</Label>
         <Select name="memory" class="mt-2" items={memoriesList} bind:value={selectedMemory} onchange={() => tagsSelected = []}/>
     </div>
     <div class="flex-1">

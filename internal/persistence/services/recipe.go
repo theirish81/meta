@@ -19,11 +19,11 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-set/v3"
+	"github.com/lib/pq"
 	"github.com/pgvector/pgvector-go"
 	"github.com/theirish81/meta/internal/dto"
 	"github.com/theirish81/meta/internal/persistence/connection"
@@ -56,8 +56,7 @@ func (s *RecipeService) Search(ctx context.Context, ownerID string, memory strin
 	}
 	tx := s.conn.WithContext(ctx).Model(query).Where(query)
 	if tags != nil {
-		tagsJSON, _ := json.Marshal(tags)
-		tx = tx.Where("tags @> ?::jsonb", tagsJSON)
+		tx = tx.Where("jsonb_exists_any(tags, ?)", pq.Array(*tags))
 	}
 
 	if q != nil {

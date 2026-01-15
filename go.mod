@@ -6,12 +6,15 @@ toolchain go1.24.8
 
 require (
 	github.com/getkin/kin-openapi v0.133.0
+	github.com/go-playground/validator/v10 v10.30.1
 	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/google/jsonschema-go v0.3.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-set/v3 v3.0.1
 	github.com/kataras/iris/v12 v12.2.6-0.20230908161203-24ba4e8933b9
 	github.com/labstack/echo-jwt/v4 v4.4.0
 	github.com/labstack/echo/v4 v4.13.4
+	github.com/lib/pq v1.10.9
 	github.com/modelcontextprotocol/go-sdk v1.2.0
 	github.com/oapi-codegen/runtime v1.1.2
 	github.com/oasdiff/yaml v0.0.0-20250309154309-f31be36b4037
@@ -42,12 +45,10 @@ require (
 	github.com/go-openapi/swag/jsonname v0.25.1 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.30.1 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gomarkdown/markdown v0.0.0-20230922112808-5421fefb8386 // indirect
-	github.com/google/jsonschema-go v0.3.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

@@ -168,13 +168,13 @@
         {/each}
 </Modal>
 
-<Modal class="w-full max-w-5xl p-10" open={formOpen}>
+<Modal class="w-full max-w-5xl p-10" open={formOpen} permanent>
     <div class="mb-6">
         <Label for="name" class="mb-2 block">Memory</Label>
         <Input id="name" size="lg" bind:value={formMemory}/>
     </div>
     <div class="mb-6">
-        <Label for="document" class="mb-2 block">Name</Label>
+        <Label for="document" class="mb-2 block">File Name</Label>
         <Input id="document" size="lg"  bind:value={formDocumentName} />
     </div>
     <div class="mb-6">
@@ -186,9 +186,11 @@
         <Textarea id="content" class="w-full h-80" bind:value={formDocumentData.content} />
     </div>
 
-    <div class="flex justify-between">
-        <Button class="mt-4" onclick={() => save()} disabled={isFormSaveDisabled()}>Save</Button>
+    <div class="flex">
+        <Button class="mt-4 mr-2" onclick={() => save()} disabled={isFormSaveDisabled()}>Save</Button>
+        <Button class="mt-4" onclick={() => formOpen = false }>Cancel</Button>
     </div>
+
 </Modal>
 
 <div>
@@ -196,15 +198,15 @@
 </div>
 <div class="flex flex-wrap gap-4 items-end">
     <div class="flex-1">
-        <Label for="memory">Memories</Label>
+        <Label for="memory">Memory *</Label>
         <Select name="memory" class="mt-2" items={memoriesList} bind:value={selectedMemory} onchange={() => tagsSelected = []}/>
     </div>
     <div class="flex-1">
-        <Label for="tags">Tags</Label>
+        <Label for="tags">Tags *</Label>
         <MultiSelect name="tags" items={getMemoryTagsSelect()} bind:value={tagsSelected} />
     </div>
     <div class="flex-1">
-        <Label for="query">Relevance Query</Label>
+        <Label for="query">Relevance Query *</Label>
         <Input name="query" type="text" bind:value={query}/>
     </div>
     <div class="flex-1">

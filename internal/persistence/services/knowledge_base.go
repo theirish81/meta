@@ -19,11 +19,11 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"path/filepath"
 	"strings"
 
 	"github.com/hashicorp/go-set/v3"
+	"github.com/lib/pq"
 	"github.com/pgvector/pgvector-go"
 	"github.com/samber/lo"
 	"github.com/theirish81/meta/internal/config"
@@ -56,8 +56,7 @@ func (s *KnowledgeBaseService) Search(ctx context.Context, ownerID string, memor
 	}
 	tx := s.conn.WithContext(ctx).Model(query).Where(query)
 	if tags != nil {
-		tagsJSON, _ := json.Marshal(tags)
-		tx = tx.Where("tags @> ?::jsonb", tagsJSON)
+		tx = tx.Where("jsonb_exists_any(tags, ?)", pq.Array(*tags))
 	}
 	embedding, err := Services.EmbeddingService.ExtractEmbedding(q)
 	if err != nil {
