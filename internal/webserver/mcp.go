@@ -20,6 +20,7 @@ package webserver
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
@@ -45,7 +46,7 @@ func (s Server) initMCP() {
 			}()
 			claims := getMetaClaims(request.GetExtra().TokenInfo.Extra)
 			res, err := services.Services.RecipeService.Memories(ctx, claims.Subject)
-			return toCallResult(res), nil, err
+			return toCallResult(res, "recipes_memories"), nil, err
 		})
 	mcp.AddTool(mcpServer, toolRecipeSearch,
 		func(ctx context.Context, request *mcp.CallToolRequest, args recipeParams) (*mcp.CallToolResult, any, error) {
@@ -56,7 +57,7 @@ func (s Server) initMCP() {
 			}()
 			claims := getMetaClaims(request.GetExtra().TokenInfo.Extra)
 			res, err := services.Services.RecipeService.Search(ctx, claims.Subject, args.Memory, &args.Tag, &args.Q)
-			return toCallResult(edjson.MustCopy[dto.Recipes](res)), nil, err
+			return toCallResult(edjson.MustCopy[dto.Recipes](res), "recipes"), nil, err
 		})
 
 	mcp.AddTool(mcpServer, toolKnowledgeSearch,
@@ -68,7 +69,7 @@ func (s Server) initMCP() {
 			}()
 			claims := getMetaClaims(request.GetExtra().TokenInfo.Extra)
 			res, err := services.Services.KnowledgeBaseService.Search(ctx, claims.Subject, args.Memory, &args.Tag, args.Q)
-			return toCallResult(edjson.MustCopy[dto.KnowledgeChunks](res)), nil, err
+			return toCallResult(edjson.MustCopy[dto.KnowledgeChunks](res), "knowledge"), nil, err
 		})
 	mcp.AddTool(mcpServer, toolKnowledgeMemories,
 		func(ctx context.Context, request *mcp.CallToolRequest, input any) (*mcp.CallToolResult, any, error) {
@@ -79,7 +80,7 @@ func (s Server) initMCP() {
 			}()
 			claims := getMetaClaims(request.GetExtra().TokenInfo.Extra)
 			res, err := services.Services.KnowledgeBaseService.Memories(ctx, claims.Subject)
-			return toCallResult(res), nil, err
+			return toCallResult(res, "knowledge_memories"), nil, err
 		})
 	method := mcp.NewStreamableHTTPHandler(func(request *http.Request) *mcp.Server {
 		return mcpServer
@@ -88,14 +89,20 @@ func (s Server) initMCP() {
 		tokenObject, err := jwt.ParseWithClaims(token, &auth2.MetaClaims{}, func(token *jwt.Token) (any, error) {
 			return loadPublicKey()
 		})
-		claims := tokenObject.Claims.(*auth2.MetaClaims)
+		if err != nil {
+			return nil, err
+		}
+		claims, ok := tokenObject.Claims.(*auth2.MetaClaims)
+		if !ok {
+			return nil, errors.New("invalid claims")
+		}
 		return &auth.TokenInfo{UserID: claims.Subject, Extra: map[string]any{"claims": claims}, Expiration: claims.ExpiresAt.Time}, err
 	}, nil)
 	s.E.Any("/mcp", echo.WrapHandler(authMiddleware(method)))
 }
 
-func toCallResult(data any) *mcp.CallToolResult {
-	output := map[string]any{"result": data}
+func toCallResult(data any, rootObjectName string) *mcp.CallToolResult {
+	output := map[string]any{rootObjectName: data}
 	content, _ := json.Marshal(output)
 	return &mcp.CallToolResult{StructuredContent: output, Content: []mcp.Content{
 		&mcp.TextContent{
