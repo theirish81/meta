@@ -147,7 +147,7 @@
     }
 
     function isFormSaveDisabled(): boolean {
-        return !(formMemory && selectedItem.name && selectedItem.description && selectedItem.content && selectedItem.tags)
+        return !(formMemory && selectedItem.name && selectedItem.description && selectedItem.content && selectedItem.tags && selectedItem.tags.length > 0)
     }
 </script>
 

@@ -137,7 +137,7 @@
     }
 
     function isFormSaveDisabled() {
-        return !formDocumentName || !formDocumentData.content || !formMemory || formDocumentData.tags.length == 0
+        return !(formDocumentName && formDocumentData.content && formMemory && formDocumentData.tags.length > 0)
     }
 
     function openForm() {
