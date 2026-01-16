@@ -20,6 +20,7 @@ package services
 import (
 	"context"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/hashicorp/go-set/v3"
@@ -167,8 +168,14 @@ func (s *KnowledgeBaseService) Memories(ctx context.Context, ownerID string) (dt
 		if err != nil {
 			return memories, err
 		}
+		docs, err := s.ListDocuments(ctx, ownerID, m)
+		if err != nil {
+			return memories, err
+		}
+		at := append(tags, docs...)
+		slices.Sort(at)
 		memories[m] = dto.Memory{
-			AvailableTags: tags,
+			AvailableTags: at,
 		}
 	}
 	return memories, nil
