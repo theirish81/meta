@@ -27,7 +27,8 @@
         Button,
         Modal,
         type SelectOptionType,
-        Alert
+        Alert,
+        Spinner
     } from "flowbite-svelte";
     import {Card, Badge, Tags} from 'flowbite-svelte';
     import { TrashBinSolid } from "flowbite-svelte-icons";
@@ -35,7 +36,7 @@
     import type {Memory, Recipe} from "./clients";
     import {getRecipesClient} from "./session.svelte.js";
     import {onMount} from "svelte";
-
+    let loading = $state(false);
     const client = getRecipesClient()
     let selectedMemory = $state('')
     let memories: {[key: string]: Memory} = $state({})
@@ -68,6 +69,7 @@
         }
     }
     async function searchRecipes(){
+        loading = true
         const tags = tagsSelected.length > 0 ? tagsSelected : undefined
         const q = query.length > 0 ? query : undefined
         try {
@@ -79,6 +81,7 @@
         }catch(e: any) {
             error = "could not search recipes: "+e.message
         }
+        loading = false
     }
 
     function isSearchSubmitDisabled(): boolean {
@@ -98,6 +101,8 @@
     }
 
     async function save() {
+        loading = true
+        formOpen = false
         try {
             if (selectedItem.id) {
                 await getRecipesClient().updateRecipe({
@@ -114,10 +119,10 @@
         }catch(e: any) {
             error = "could not save recipe: "+e.message
         }
-        formOpen = false
         await listMemories()
         selectedMemory = formMemory
         await searchRecipes()
+        loading = false
     }
 
     async function deleteRecipe() {
@@ -151,6 +156,16 @@
     }
 </script>
 
+{#if loading}
+    <div
+            class="fixed inset-0 z-50 flex items-center justify-center
+           bg-black/40 backdrop-blur-sm"
+            aria-busy="true"
+            aria-live="polite"
+    >
+        <Spinner size="12" />
+    </div>
+{/if}
 
 <Modal open={formOpen} onclose={onModalClose} class="w-full max-w-5xl" permanent>
 

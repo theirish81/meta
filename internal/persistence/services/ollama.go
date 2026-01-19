@@ -23,12 +23,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 
 	"github.com/theirish81/meta/internal/config"
 )
 
-type EmbeddingService struct {
+type OllamaService struct {
 	baseURL string
 	client  *http.Client
 }
@@ -52,33 +53,63 @@ type OllamaEmbeddingResponse struct {
 	Embedding []float32 `json:"embedding"`
 }
 
-func NewEmbeddingService(baseURL string) *EmbeddingService {
-	return &EmbeddingService{
+func NewOllamaService(baseURL string) *OllamaService {
+	return &OllamaService{
 		baseURL: baseURL,
 		client:  &http.Client{},
 	}
 }
 
-func (c *EmbeddingService) ExtractEmbedding(text string) ([]float32, error) {
-	request := OllamaEmbeddingRequest{
-		Model:  config.Instance.EmbeddingModel,
-		Prompt: text,
-	}
-	resp, err := c.client.Post(fmt.Sprintf("%s/api/embeddings", c.baseURL), "application/json", request.Reader())
-	if err != nil {
-		return nil, fmt.Errorf("failed to make request: %w", err)
-	}
-	if resp.Body != nil {
-		defer func() {
-			_ = resp.Body.Close()
+func (c *OllamaService) ExtractEmbeddings(input []string) ([]Embedding, error) {
+	embeddings := make([]Embedding, 0)
+	var mainErr error
+	for _, text := range input {
+		func() {
+			request := OllamaEmbeddingRequest{
+				Model:  config.Instance.EmbeddingModel,
+				Prompt: text,
+			}
+			resp, err := c.client.Post(fmt.Sprintf("%s/api/embeddings", c.baseURL), "application/json", request.Reader())
+			if err != nil {
+				mainErr = err
+				return
+			}
+			if resp.Body != nil {
+				defer func() {
+					_ = resp.Body.Close()
+				}()
+				data, _ := io.ReadAll(resp.Body)
+				response := OllamaEmbeddingResponse{}
+				_ = json.Unmarshal(data, &response)
+				embedding := response.Embedding
+				c.Normalize(embedding)
+				embedding = c.PadQwenToGemini(embedding)
+				embeddings = append(embeddings, Embedding{Text: text, Vector: embedding})
+			} else {
+				mainErr = errors.New("no response body")
+				return
+			}
 		}()
-		data, _ := io.ReadAll(resp.Body)
-		response := OllamaEmbeddingResponse{}
-		_ = json.Unmarshal(data, &response)
-		return response.Embedding, nil
-
-	} else {
-		return nil, errors.New("no response body")
 	}
+	return embeddings, mainErr
+}
 
+func (c *OllamaService) Normalize(v []float32) {
+	var norm float32
+	for _, x := range v {
+		norm += x * x
+	}
+	norm = float32(math.Sqrt(float64(norm)))
+	if norm == 0 {
+		return
+	}
+	for i := range v {
+		v[i] /= norm
+	}
+}
+
+func (c *OllamaService) PadQwenToGemini(src []float32) []float32 {
+	dst := make([]float32, 3072)
+	copy(dst, src)
+	return dst
 }

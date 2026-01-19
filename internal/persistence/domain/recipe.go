@@ -31,6 +31,6 @@ type Recipe struct {
 	Tags        datatypes.JSONSlice[string] `gorm:"not null"`
 	Content     string                      `gorm:"not null"`
 	IdentityID  string                      `gorm:"not null"`
-	Embedding   pgvector.Vector             `gorm:"type:vector(2560); not null"`
+	Embedding   pgvector.Vector             `gorm:"type:vector(3072); not null"`
 	Distance    float64                     `gorm:"column:distance;<-:false;-:migration"`
 }
