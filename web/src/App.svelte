@@ -7,6 +7,7 @@
   import './app.css'
   import Recipes from "./lib/Recipes.svelte";
   import Knowledge from "./lib/Knowledge.svelte";
+  import Objects from "./lib/Objects.svelte";
 
   let error = $state("");
   let authorizationKey: string | null = null;
@@ -58,6 +59,9 @@
       <TabItem title="Knowledge">
         <Knowledge/>
       </TabItem>
+        <TabItem title="Objects">
+            <Objects/>
+        </TabItem>
     </Tabs>
   {:else}
     <div class="flex items-center justify-center h-screen">

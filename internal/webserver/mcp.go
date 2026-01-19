@@ -32,6 +32,7 @@ import (
 	"github.com/theirish81/edjson"
 	auth2 "github.com/theirish81/meta/internal/auth"
 	"github.com/theirish81/meta/internal/dto"
+	"github.com/theirish81/meta/internal/persistence/domain"
 	"github.com/theirish81/meta/internal/persistence/services"
 )
 
@@ -82,6 +83,49 @@ func (s Server) initMCP() {
 			res, err := services.Services.KnowledgeBaseService.Memories(ctx, claims.Subject)
 			return toCallResult(res, "knowledge_memories"), nil, err
 		})
+	mcp.AddTool(mcpServer, toolObjectMemories,
+		func(ctx context.Context, request *mcp.CallToolRequest, input objectParams) (*mcp.CallToolResult, any, error) {
+			defer func() {
+				if e := recover(); e != nil {
+					log.Println(e)
+				}
+			}()
+			claims := getMetaClaims(request.GetExtra().TokenInfo.Extra)
+			res, err := services.Services.ObjectService.Memories(ctx, claims.Subject)
+			return toCallResult(res, "memories"), nil, err
+		})
+	mcp.AddTool(mcpServer, toolObjectCreate,
+		func(ctx context.Context, request *mcp.CallToolRequest, input objectParams) (*mcp.CallToolResult, any, error) {
+			defer func() {
+				if e := recover(); e != nil {
+					log.Println(e)
+				}
+			}()
+			claims := getMetaClaims(request.GetExtra().TokenInfo.Extra)
+			err := services.Services.ObjectService.Upsert(ctx, claims.Subject, input.Memory, domain.Object{
+				Name:        input.Name,
+				Content:     input.Content,
+				ContentType: input.ContentType,
+			})
+			if err != nil {
+				return toCallResult("could not create object", "result"), nil, err
+			}
+			return toCallResult("object created", "result"), nil, nil
+		})
+	mcp.AddTool(mcpServer, toolObjectGetByName,
+		func(ctx context.Context, request *mcp.CallToolRequest, input objectParams) (*mcp.CallToolResult, any, error) {
+			defer func() {
+				if e := recover(); e != nil {
+					log.Println(e)
+				}
+			}()
+			claims := getMetaClaims(request.GetExtra().TokenInfo.Extra)
+			res, err := services.Services.ObjectService.GetByName(ctx, claims.Subject, input.Memory, input.Name)
+			if err != nil {
+				return toCallResult("could not create object", "result"), nil, err
+			}
+			return toCallResult(res, "object"), nil, nil
+		})
 	method := mcp.NewStreamableHTTPHandler(func(request *http.Request) *mcp.Server {
 		return mcpServer
 	}, nil)
@@ -125,6 +169,13 @@ type recipeParams struct {
 	Memory string   `json:"memory"`
 	Tag    []string `json:"tag"`
 	Q      string   `json:"q"`
+}
+
+type objectParams struct {
+	Memory      string `json:"memory"`
+	Name        string `json:"name"`
+	Content     string `json:"content"`
+	ContentType string `json:"content_type"`
 }
 
 var toolKnowledgeSearch = &mcp.Tool{
@@ -192,5 +243,59 @@ var toolRecipesMemories = &mcp.Tool{
 	InputSchema: &jsonschema.Schema{
 		Type:       "object",
 		Properties: map[string]*jsonschema.Schema{},
+	},
+}
+
+var toolObjectMemories = &mcp.Tool{
+	Name:        "meta_list_objects_memories",
+	Description: "lists all objects memories and tags. Call this first to get the list of memories and tags to use in the meta_get_object_by_name tool.",
+	InputSchema: &jsonschema.Schema{
+		Type:       "object",
+		Properties: map[string]*jsonschema.Schema{},
+	},
+}
+
+var toolObjectCreate = &mcp.Tool{
+	Name:        "meta_create_object",
+	Description: "creates or updates a generic text object for later use, with a specific name into a specific memory slot.",
+	InputSchema: &jsonschema.Schema{
+		Type:     "object",
+		Required: []string{"memory", "name", "content", "content_type"},
+		Properties: map[string]*jsonschema.Schema{
+			"memory": {
+				Type: "string",
+			},
+			"name": {
+				Type: "string",
+			},
+			"content": {
+				Type: "string",
+			},
+			"content_type": {
+				Type: "string",
+				Enum: []any{
+					"text/markdown",
+					"text/plain",
+					"application/json",
+				},
+			},
+		},
+	},
+}
+
+var toolObjectGetByName = &mcp.Tool{
+	Name:        "meta_get_object_by_name",
+	Description: "gets a generic text object by its name and memory slot.",
+	InputSchema: &jsonschema.Schema{
+		Type:     "object",
+		Required: []string{"memory", "name"},
+		Properties: map[string]*jsonschema.Schema{
+			"memory": {
+				Type: "string",
+			},
+			"name": {
+				Type: "string",
+			},
+		},
 	},
 }

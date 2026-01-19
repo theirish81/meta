@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './DataObject';
 export * from './Document';
 export * from './KnowledgeChunk';
 export * from './Memory';
