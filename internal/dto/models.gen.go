@@ -11,6 +11,23 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// Defines values for DataObjectContentType.
+const (
+	Applicationjson DataObjectContentType = "application/json"
+	Textmarkdown    DataObjectContentType = "text/markdown"
+	Textplain       DataObjectContentType = "text/plain"
+)
+
+// DataObject defines model for dataObject.
+type DataObject struct {
+	Content     string                 `json:"content"`
+	ContentType *DataObjectContentType `json:"content_type,omitempty"`
+	Name        string                 `json:"name"`
+}
+
+// DataObjectContentType defines model for DataObject.ContentType.
+type DataObjectContentType string
+
 // Document defines model for document.
 type Document struct {
 	Content string   `json:"content"`
@@ -61,6 +78,16 @@ type SearchKbParams struct {
 	Q   string    `form:"q" json:"q"`
 }
 
+// DeleteObjectByNameParams defines parameters for DeleteObjectByName.
+type DeleteObjectByNameParams struct {
+	Name string `form:"name" json:"name"`
+}
+
+// GetObjectByNameParams defines parameters for GetObjectByName.
+type GetObjectByNameParams struct {
+	Name string `form:"name" json:"name"`
+}
+
 // SearchRecipesParams defines parameters for SearchRecipes.
 type SearchRecipesParams struct {
 	Tag *[]string `form:"tag,omitempty" json:"tag,omitempty"`
@@ -69,6 +96,9 @@ type SearchRecipesParams struct {
 
 // SubmitDocumentJSONRequestBody defines body for SubmitDocument for application/json ContentType.
 type SubmitDocumentJSONRequestBody = Document
+
+// CreateObjectJSONRequestBody defines body for CreateObject for application/json ContentType.
+type CreateObjectJSONRequestBody = DataObject
 
 // CreateRecipeJSONRequestBody defines body for CreateRecipe for application/json ContentType.
 type CreateRecipeJSONRequestBody = RecipeRequest

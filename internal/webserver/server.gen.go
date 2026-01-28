@@ -38,6 +38,21 @@ type ServerInterface interface {
 	// (POST /kb/{memory}/documents/{document})
 	SubmitDocument(ctx echo.Context, memory string, document string) error
 
+	// (GET /objects/_memories)
+	ListObjectsMemories(ctx echo.Context) error
+
+	// (GET /objects/{memory})
+	ListObjects(ctx echo.Context, memory string) error
+
+	// (POST /objects/{memory})
+	CreateObject(ctx echo.Context, memory string) error
+
+	// (DELETE /objects/{memory}/_by-name)
+	DeleteObjectByName(ctx echo.Context, memory string, params DeleteObjectByNameParams) error
+
+	// (GET /objects/{memory}/_by-name)
+	GetObjectByName(ctx echo.Context, memory string, params GetObjectByNameParams) error
+
 	// (GET /recipes/_memories)
 	ListRecipesMemories(ctx echo.Context) error
 
@@ -171,6 +186,107 @@ func (w *ServerInterfaceWrapper) SubmitDocument(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.SubmitDocument(ctx, memory, document)
+	return err
+}
+
+// ListObjectsMemories converts echo context to params.
+func (w *ServerInterfaceWrapper) ListObjectsMemories(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ListObjectsMemories(ctx)
+	return err
+}
+
+// ListObjects converts echo context to params.
+func (w *ServerInterfaceWrapper) ListObjects(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "memory" -------------
+	var memory string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "memory", ctx.Param("memory"), &memory, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter memory: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ListObjects(ctx, memory)
+	return err
+}
+
+// CreateObject converts echo context to params.
+func (w *ServerInterfaceWrapper) CreateObject(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "memory" -------------
+	var memory string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "memory", ctx.Param("memory"), &memory, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter memory: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.CreateObject(ctx, memory)
+	return err
+}
+
+// DeleteObjectByName converts echo context to params.
+func (w *ServerInterfaceWrapper) DeleteObjectByName(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "memory" -------------
+	var memory string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "memory", ctx.Param("memory"), &memory, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter memory: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params DeleteObjectByNameParams
+	// ------------- Required query parameter "name" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "name", ctx.QueryParams(), &params.Name)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter name: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.DeleteObjectByName(ctx, memory, params)
+	return err
+}
+
+// GetObjectByName converts echo context to params.
+func (w *ServerInterfaceWrapper) GetObjectByName(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "memory" -------------
+	var memory string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "memory", ctx.Param("memory"), &memory, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter memory: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetObjectByNameParams
+	// ------------- Required query parameter "name" -------------
+
+	err = runtime.BindQueryParameter("form", true, true, "name", ctx.QueryParams(), &params.Name)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter name: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GetObjectByName(ctx, memory, params)
 	return err
 }
 
@@ -322,6 +438,11 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/kb/:memory/documents", wrapper.ListDocuments)
 	router.DELETE(baseURL+"/kb/:memory/documents/:document", wrapper.DeleteDocument)
 	router.POST(baseURL+"/kb/:memory/documents/:document", wrapper.SubmitDocument)
+	router.GET(baseURL+"/objects/_memories", wrapper.ListObjectsMemories)
+	router.GET(baseURL+"/objects/:memory", wrapper.ListObjects)
+	router.POST(baseURL+"/objects/:memory", wrapper.CreateObject)
+	router.DELETE(baseURL+"/objects/:memory/_by-name", wrapper.DeleteObjectByName)
+	router.GET(baseURL+"/objects/:memory/_by-name", wrapper.GetObjectByName)
 	router.GET(baseURL+"/recipes/_memories", wrapper.ListRecipesMemories)
 	router.GET(baseURL+"/recipes/:memory", wrapper.SearchRecipes)
 	router.POST(baseURL+"/recipes/:memory", wrapper.CreateRecipe)
@@ -333,23 +454,27 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"H4sIAAAAAAAC/8xZ32/bNhD+Vwhuj2rldHvSW7tgQ9Z1KdYNewgCgxLPNmuJVEjKiWHofx9IivphSbac",
+	"2Mleilgkj999d9+dTt3hRGS54MC1wtEOq2QFGbF/UqLJbfwdEm1+5VLkIDUDu5YIroHbBb3NAUdYacn4",
+	"EpeBX5u7hR2msCBFqnGENTzpME8J4zjAwIsMR3fdhyTPU5YQzQQPvythHtn1jMg1FY8c3wf9CznJYABJ",
+	"GWAJDwWTQM09dleNrmVIOB/LAFORFFnl1nR/NVnaPUxDpoZ3uAdESrLt4bLHD+Nac/GYAl3CPFkVfD0A",
+	"zz/uXd126dzIa9tB7YTFMcGF7rU/SljgCP8QNrkYVokY7vveAxXgDDIhKyYIpcxkD0m/dhg6dIU979yr",
+	"/uwRTDaEpSROYf5CzvYMDVElIWFOOSRNbxc4ujsM3+2fm1tAGQv74Bk1/y6EzIhRYVEwioMjamEU35fj",
+	"6OrbTlIKBZVIlpv4DK6PCPlcEqsqQBvFYd05X6fnahW5ITgKkkIyvf1mtjqTMRAJ8mOhV82vX32Qfv/3",
+	"bxy4amwMudUmaiutc1waw4wvhGWE6dSsfAFN0G0O/OPXGxzgDUhl6cabKwNM5MBJznCEf3o/e/8BBzgn",
+	"emXxhOs4nLe1tATt6ncrajhlSitE0hTpFaBanSgmCpCTD1Kp0CpAhFOziUlUZz2qQmEyxlb5G4oj/AdT",
+	"+nP8xV9tiFe54MrB+DCb7SVWr0vUjWuS1M0dlruuZ34NEQlIgi4kB2qD59LvDq9jkyZP7yBZCQWJVVXB",
+	"k+p8QvhcAqHOtmFz5/goR8lUQGSyAtXi0ZVHxDgibTp7nH2zRz/HNoKSZKBBKlsrmLFsoupTPvJlra0K",
+	"LQsIWqz1ykFl6KEAe7KypMkSt49NV+SwvYeTQN1fMDV6HWogRXphOnuqhL6pTlVgvf94yhiZXdfmL5Q3",
+	"Lw3R5ITqBadh4oJRCXf+z9JFJgUN/Ri550N10uubAtdswYCieIsIUjkkbMEStGApoKpTdcN3bW1eNy9d",
+	"ezz/3IfRXMsUcphOJeRRMg32zEXLTNcQbTt5QublQg1V2SLOmEkLxOGxFgzS4liJteeuu1hA6U+Cbs9W",
+	"dmpXy9K9tvS1cyCmJKnYeV5QTZq71x012Pr79cMNhOpcvfr5aj/erSvHTlC8p2Kgb48ycTYGDiZJM4pP",
+	"oKZy41zMXK5ReLl2yf1FAtFQuXsh0bX4HJLdVV92jjOjucTiexajQ7qre8w83r7zE1DTV4Z6gIP+afun",
+	"axPH+0ADfqgJnAg+GNbEb6AP45pdKHzBqLP/3+QfeRvmnrjJIjKZVI2pJw9v1bmXTG1/ORNvP7ppYkGO",
+	"1zw/y0/vBp7W6VOcJ3Ti8FaRN/Im/gqD19sMWj4SY3E8Uwgv37a62F1b8G+ZDuvxTHDNzmXChZrd/vfB",
+	"0YZ3xttGgzvSPyeGtt0/9+UZ7tyTGzptMmtGLunZH+q1rdAc67LewaEee6KDrzpted4Omjr2+XhUF0VO",
+	"yTTC/7E731wLs1fUgiPnZVpofV22qdL+rnxnP+IrkBufSIVMcYRDkrNwc4XtJ353766bDsr+R0L1aB23",
+	"f/k3qPK+/C8AAP//5u1rSz8cAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

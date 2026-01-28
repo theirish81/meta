@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {Configuration, KbApi, RecipesApi} from "./clients";
+import {Configuration, KbApi, ObjectsApi, RecipesApi} from "./clients";
 
 
 
@@ -29,6 +29,13 @@ export function getRecipesClient(): RecipesApi {
 
 export function getKnowledgeClient(): KbApi {
     return new KbApi(new Configuration({
+            basePath: "/api/v1",
+            accessToken: getAuthorizationKey
+        })
+    )
+}
+export function getObjectsClient(): ObjectsApi {
+    return new ObjectsApi(new Configuration({
             basePath: "/api/v1",
             accessToken: getAuthorizationKey
         })

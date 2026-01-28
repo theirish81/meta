@@ -29,6 +29,7 @@ type ServiceRegistry struct {
 	EmbeddingService     *EmbeddingService
 	RecipeService        *RecipeService
 	KnowledgeBaseService *KnowledgeBaseService
+	ObjectService        *ObjectService
 }
 
 var Services ServiceRegistry
@@ -51,5 +52,11 @@ func Init() error {
 		return err
 	}
 	Services.KnowledgeBaseService = knowledgeService
+
+	objectService := NewObjectService()
+	if err := objectService.InitTables(context.Background()); err != nil {
+		return err
+	}
+	Services.ObjectService = objectService
 	return nil
 }

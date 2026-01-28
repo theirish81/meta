@@ -7,6 +7,7 @@ servers:
 tags:
   - name: recipes
   - name: kb
+  - name: objects
 
 security:
   - bearerAuth: []
@@ -230,7 +231,93 @@ paths:
       responses:
         204:
           description: knowledge is deleted
+  "/objects/_memories":
+    get:
+      operationId: listObjectsMemories
+      tags:
+        - objects
+      x-echosec:
+        function: can_read
+      responses:
+        200:
+          description: memories are returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  "/objects/{memory}":
+    parameters:
+      - name: memory
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: listObjects
+      x-echosec:
+        function: can_read
+      tags:
+        - objects
+      responses:
+        200:
+          description: objects are returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/dataObject'
+    post:
+      operationId: createObject
+      tags:
+        - objects
+      x-echosec:
+        function: can_write
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/dataObject'
+      responses:
+        201:
+          description: object is created
 
+  "/objects/{memory}/_by-name":
+    parameters:
+      - name: memory
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: query
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getObjectByName
+      tags:
+        - objects
+      x-echosec:
+        function: can_read
+      responses:
+        200:
+          description: object is returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dataObject'
+    delete:
+      operationId: deleteObjectByName
+      tags:
+        - objects
+      x-echosec:
+        function: can_write
+      responses:
+        204:
+          description: object is deleted
 components:
   securitySchemes:
     bearerAuth:
@@ -313,3 +400,20 @@ components:
             type: string
         content:
           type: string
+    dataObject:
+      type: object
+      required:
+        - name
+        - content
+      properties:
+        name:
+          type: string
+        content:
+          type: string
+        content_type:
+          type: string
+          default: text/plain
+          enum:
+            - text/plain
+            - application/json
+            - text/markdown
