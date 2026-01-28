@@ -60,11 +60,11 @@ func (s *RecipeService) Search(ctx context.Context, ownerID string, memory strin
 	}
 
 	if q != nil {
-		embedding, err := Services.EmbeddingService.ExtractEmbedding(*q)
+		embedding, err := Services.EmbeddingService.ExtractEmbeddings([]string{*q})
 		if err != nil {
 			return res, err
 		}
-		tx = tx.Select("*, embedding <=> ? as distance", pgvector.NewVector(embedding))
+		tx = tx.Select("*, embedding <=> ? as distance", pgvector.NewVector(embedding[0].Vector))
 		tx = tx.Order("distance ASC")
 		tx = tx.Limit(5)
 	}
@@ -76,11 +76,11 @@ func (s *RecipeService) Create(ctx context.Context, ownerID string, memory strin
 	meta.ID = uuid.New()
 	meta.IdentityID = ownerID
 	meta.Memory = memory
-	embedding, err := Services.EmbeddingService.ExtractEmbedding(meta.Name + ": " + meta.Description)
+	embeddings, err := Services.EmbeddingService.ExtractEmbeddings([]string{meta.Name + ": " + meta.Description})
 	if err != nil {
 		return meta, err
 	}
-	meta.Embedding = pgvector.NewVector(embedding)
+	meta.Embedding = pgvector.NewVector(embeddings[0].Vector)
 	err = s.conn.WithContext(ctx).Create(&meta).Error
 	return meta, err
 }

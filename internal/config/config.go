@@ -30,7 +30,9 @@ type Config struct {
 	MetaDistanceThreshold float64 `mapstructure:"META_DISTANCE_THRESHOLD" validate:"required,numeric,min=0,max=1"`
 	DatabaseURL           string  `mapstructure:"DATABASE_URL" validate:"required"`
 	EmbeddingModel        string  `mapstructure:"EMBEDDING_MODEL" validate:"required"`
-	OllamaBaseURL         string  `mapstructure:"OLLAMA_BASE_URL" validate:"required,url"`
+	OllamaBaseURL         string  `mapstructure:"OLLAMA_BASE_URL" validate:"url"`
+	EmbeddingService      string  `mapstructure:"EMBEDDING_SERVICE" validate:"required,oneof=ollama gemini"`
+	GeminiProjectID       string  `mapstructure:"GEMINI_PROJECT_ID"`
 }
 
 var Instance Config

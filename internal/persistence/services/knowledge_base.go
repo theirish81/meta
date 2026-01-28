@@ -59,11 +59,11 @@ func (s *KnowledgeBaseService) Search(ctx context.Context, ownerID string, memor
 	if tags != nil {
 		tx = tx.Where("jsonb_exists_any(tags, ?) OR document ILIKE ANY (?)", pq.Array(*tags), pq.Array(*tags))
 	}
-	embedding, err := Services.EmbeddingService.ExtractEmbedding(q)
+	embeddings, err := Services.EmbeddingService.ExtractEmbeddings([]string{q})
 	if err != nil {
 		return res, err
 	}
-	tx = tx.Select("*, embedding <=> ? as distance", pgvector.NewVector(embedding))
+	tx = tx.Select("*, embedding <=> ? as distance", pgvector.NewVector(embeddings[0].Vector))
 	tx = tx.Order("distance ASC")
 	tx = tx.Limit(15)
 	if err = tx.Find(&res).Error; err != nil {
@@ -98,20 +98,19 @@ func (s *KnowledgeBaseService) RecordDocument(ctx context.Context, ownerID strin
 	if err != nil {
 		return err
 	}
-
-	for _, chunk := range chunks {
+	embeddings, err := Services.EmbeddingService.ExtractEmbeddings(chunks)
+	if err != nil {
+		return err
+	}
+	for _, embedding := range embeddings {
 		kc := domain.KnowledgeChunk{
 			Memory:     memory,
 			Document:   document,
 			Tags:       tags,
-			Chunk:      chunk,
+			Chunk:      embedding.Text,
+			Embedding:  pgvector.NewVector(embedding.Vector),
 			IdentityID: ownerID,
 		}
-		embedding, err := Services.EmbeddingService.ExtractEmbedding(kc.Chunk)
-		if err != nil {
-			return err
-		}
-		kc.Embedding = pgvector.NewVector(embedding)
 		if err := s.conn.WithContext(ctx).Create(&kc).Error; err != nil {
 			return err
 		}

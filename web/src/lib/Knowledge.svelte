@@ -27,7 +27,8 @@
         Modal,
         type SelectOptionType,
         Textarea,
-        Tags, Alert
+        Tags, Alert,
+        Spinner
     } from "flowbite-svelte";
     import { Badge, Table, TableHead, TableHeadCell, TableBody, TableBodyRow, TableBodyCell} from 'flowbite-svelte';
 
@@ -36,7 +37,7 @@
     import {getKnowledgeClient} from "./session.svelte.js";
     import {onMount} from "svelte";
     import {TrashBinSolid} from "flowbite-svelte-icons";
-
+    let loading = $state(false);
     const client = getKnowledgeClient()
     let error = $state('')
     let selectedMemory = $state('')
@@ -61,6 +62,8 @@
         listMemories()
     })
 
+
+
     function getMemoryTagsSelect(): SelectOptionType<any>[]{
         if (!memories || !selectedMemory) {
             return []
@@ -77,6 +80,7 @@
     }
 
     async function searchItems(){
+        loading = true
         const tags = tagsSelected.length > 0 ? tagsSelected : undefined
         try {
             items = await client.searchKb({
@@ -87,6 +91,7 @@
         }catch(e: any) {
             error = "could not search items: "+e.message
         }
+        loading = false
     }
 
     async function listDocuments() {
@@ -123,6 +128,8 @@
     }
 
     async function save() {
+        loading = true
+        formOpen = false
         try {
             await client.submitDocument({
                 memory: formMemory,
@@ -133,7 +140,7 @@
             error = "could not save document: "+e.message
         }
         await listMemories()
-        formOpen = false
+        loading = false
     }
 
     function isFormSaveDisabled() {
@@ -150,7 +157,16 @@
     }
 
 </script>
-
+{#if loading}
+    <div
+            class="fixed inset-0 z-50 flex items-center justify-center
+           bg-black/40 backdrop-blur-sm"
+            aria-busy="true"
+            aria-live="polite"
+    >
+        <Spinner size="12" />
+    </div>
+{/if}
 
 <Modal class="w-full max-w-5xl p-10" open={panelDocumentsOpen}>
         {#each panelDocuments as document}

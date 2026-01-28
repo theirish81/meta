@@ -19,6 +19,7 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/theirish81/meta/internal/config"
 	"github.com/theirish81/meta/internal/persistence/connection"
@@ -26,7 +27,7 @@ import (
 )
 
 type ServiceRegistry struct {
-	EmbeddingService     *EmbeddingService
+	EmbeddingService     EmbeddingService
 	RecipeService        *RecipeService
 	KnowledgeBaseService *KnowledgeBaseService
 	ObjectService        *ObjectService
@@ -38,8 +39,18 @@ func Init() error {
 	if err := connection.InitConnection(config.Instance.DatabaseURL, logger.Info); err != nil {
 		return err
 	}
-
-	Services.EmbeddingService = NewEmbeddingService(config.Instance.OllamaBaseURL)
+	var err error
+	switch config.Instance.EmbeddingService {
+	case "ollama":
+		Services.EmbeddingService = NewOllamaService(config.Instance.OllamaBaseURL)
+	case "gemini":
+		Services.EmbeddingService, err = NewGeminiService()
+	default:
+		err = errors.New("embedding service not selected")
+	}
+	if err != nil {
+		return err
+	}
 
 	metaService := NewRecipeService()
 	if err := metaService.InitTables(context.Background()); err != nil {

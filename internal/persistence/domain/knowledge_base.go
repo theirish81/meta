@@ -23,13 +23,15 @@ import (
 	"gorm.io/datatypes"
 )
 
+// Ollama vector size 2560
+
 type KnowledgeChunk struct {
 	ID         uuid.UUID                   `gorm:"primary_key;type:uuid;default:gen_random_uuid();<-:create"`
 	Memory     string                      `gorm:"not null"`
 	Document   string                      `gorm:"not null"`
 	Tags       datatypes.JSONSlice[string] `gorm:"not null"`
 	Chunk      string                      `gorm:"not null"`
-	Embedding  pgvector.Vector             `gorm:"type:vector(2560); not null"`
+	Embedding  pgvector.Vector             `gorm:"type:vector(3072); not null"`
 	IdentityID string                      `gorm:"not null"`
 	Distance   float64                     `gorm:"column:distance;<-:false;-:migration"`
 }
