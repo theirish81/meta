@@ -148,7 +148,6 @@
     function onModalClose() {
         selectedItem = <Recipe>{}
         formOpen = false
-        formMemory = ''
     }
 
     function isFormSaveDisabled(): boolean {
