@@ -41,10 +41,12 @@ func Init() error {
 	viper.SetConfigFile(".env")
 	viper.SetConfigType("env")
 	viper.SetDefault("EMBEDDING_MODEL", "")
+	viper.SetDefault("EMBEDDING_SERVICE", "")
 	viper.SetDefault("KB_DISTANCE_THRESHOLD", "")
 	viper.SetDefault("META_DISTANCE_THRESHOLD", "")
 	viper.SetDefault("DATABASE_URL", "")
 	viper.SetDefault("OLLAMA_BASE_URL", "")
+	viper.SetDefault("GEMINI_PROJECT_ID", "")
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
 		var configFileNotFoundError *fs.PathError
